@@ -1,12 +1,19 @@
 open System
 open System.IO
 
+let computeFrequencies (left, right) =
+    left, Array.countBy id right |> Map.ofArray
+
+let computeSimilarityScore (numbers, frequencies) =
+    numbers
+    |> Array.map (fun n -> Map.tryFind n frequencies |> Option.map ((*) n) |> Option.defaultValue 0)
+    |> Array.sum
+
 Path.Join [| __SOURCE_DIRECTORY__; "input.txt" |]
 |> File.ReadAllLines
 |> Array.map _.Split(" ", StringSplitOptions.RemoveEmptyEntries)
 |> Array.map (fun a -> (int a.[0]), (int a.[1]))
 |> Array.unzip
-|> (fun (aa, bb) -> Array.zip (Array.sort aa) (Array.sort bb))
-|> Array.map (fun (a, b) -> Math.Abs(b - a))
-|> Array.sum
-|> printfn "Result: %A" // 1223326
+|> computeFrequencies
+|> computeSimilarityScore
+|> printfn "Result: %A" // 21070419
